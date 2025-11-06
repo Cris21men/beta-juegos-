@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robot Minero - Misión Microprocesador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(180deg, #1a0a00 0%, #4a1a0a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+            overflow: hidden;
+        }
+
+        .intro-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #000000, #1a0a00, #4a1a0a);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .intro-content {
+            max-width: 800px;
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+            margin: auto;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .intro-title {
+            font-size: 42px;
+            color: #ff6600;
+            text-shadow: 0 0 20px rgba(255, 100, 0, 0.8);
+            margin-bottom: 15px;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 100, 0, 0.8); }
+            50% { text-shadow: 0 0 40px rgba(255, 100, 0, 1); }
+        }
+
+        .intro-story {
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            color: #ddd;
+        }
+
+        .intro-story p {
+            margin-bottom: 8px;
+        }
+
+        .intro-mission {
+            font-size: 18px;
+            color: #00ff00;
+            font-weight: bold;
+            margin: 15px 0;
+            padding: 15px;
+            border: 3px solid #00ff00;
+            border-radius: 10px;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .intro-instructions {
+            font-size: 14px;
+            text-align: left;
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.6);
+            border-radius: 10px;
+            border: 2px solid #ff6600;
+        }
+
+        .intro-instructions h3 {
+            color: #ff6600;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .intro-instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .intro-instructions li {
+            margin: 5px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+
+        .intro-instructions li::before {
+            content: "►";
+            position: absolute;
+            left: 0;
+            color: #ff6600;
+        }
+
+        .start-button {
+            background: linear-gradient(135deg, #ff6600, #ff8800);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            font-size: 22px;
+            font-family: 'Courier New', monospace;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+            box-shadow: 0 5px 20px rgba(255, 100, 0, 0.5);
+        }
+
+        .start-button:hover {
+            background: linear-gradient(135deg, #ff8800, #ffaa00);
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(255, 100, 0, 0.8);
+        }
+
+        .game-container {
+            display: flex;
+            gap: 15px;
+            padding: 5px;
+            align-items: center;
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-status-text {
+            font-size: 14px;
+            font-weight: bold;
+            padding: 6px 12px;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 1);
+            min-width: 160px;
+            text-align: center;
+        }
+
+        .control-status-text.normal {
+            color: #00ff00;
+            border-color: #00ff00;
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .control-status-text.inverted {
+            color: #ff0000;
+            border-color: #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: flashWarning 0.5s ease-in-out infinite;
+        }
+
+        @keyframes flashWarning {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .control-indicator-vertical {
+            width: 70px;
+            height: 280px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 4px solid #666;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .battery-fill-vertical {
+            width: 100%;
+            position: absolute;
+            bottom: 0;
+            transition: height 0.1s linear;
+        }
+
+        .battery-fill-vertical.green {
+            background: linear-gradient(180deg, #00ff00, #88ff00);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.8);
+        }
+
+        .battery-fill-vertical.red {
+            background: linear-gradient(180deg, #ff0000, #ff6600);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+
+        .center-panel {
+            text-align: center;
+        }
+
+        .game-header {
+            margin-bottom: 5px;
+        }
+
+        .game-title {
+            display: none;
+        }
+
+        .game-info-line {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 5px;
+        }
+
+        .game-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .stat {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 4px 10px;
+            border-radius: 5px;
+            border: 2px solid #ff6600;
+            font-size: 13px;
+        }
+
+        .timer {
+            font-size: 20px;
+            font-weight: bold;
+            padding: 5px 15px;
+            border-radius: 5px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            min-width: 60px;
+        }
+
+        .timer.warning {
+            background: rgba(255, 165, 0, 0.3);
+            border-color: #ffaa00;
+            color: #ffaa00;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        .timer.critical {
+            background: rgba(255, 0, 0, 0.3);
+            border-color: #ff0000;
+            color: #ff0000;
+            animation: pulse 0.3s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .game-board {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 8px;
+            border-radius: 8px;
+            border: 3px solid #ff6600;
+            box-shadow: 0 0 30px rgba(255, 100, 0, 0.5);
+        }
+
+        .grid {
+            display: grid;
+            gap: 1px;
+            background: #000;
+            padding: 2px;
+        }
+
+        .cell {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            border-radius: 2px;
+        }
+
+        .cell.lava {
+            background: linear-gradient(135deg, #ff4400, #ff8800);
+            box-shadow: inset 0 0 10px rgba(255, 0, 0, 0.5);
+            animation: lavaPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes lavaPulse {
+            0%, 100% { background: linear-gradient(135deg, #ff4400, #ff8800); }
+            50% { background: linear-gradient(135deg, #ff6600, #ffaa00); }
+        }
+
+        .cell.path {
+            background: #654321;
+            border: 1px solid #8B4513;
+        }
+
+        .cell.mineral {
+            background: #00ffff;
+            box-shadow: 0 0 15px #00ffff;
+            animation: mineralGlow 1s ease-in-out infinite;
+        }
+
+        @keyframes mineralGlow {
+            0%, 100% { box-shadow: 0 0 15px #00ffff; }
+            50% { box-shadow: 0 0 25px #00ffff; }
+        }
+
+        .cell.exit {
+            background: #00ff00;
+            box-shadow: 0 0 15px #00ff00;
+        }
+
+        .cell.fallen {
+            background: #000;
+            animation: cellFall 0.3s ease-out;
+        }
+
+        @keyframes cellFall {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0.5); opacity: 0; }
+        }
+
+        .robot {
+            font-size: 20px;
+            animation: robotBounce 0.5s ease-in-out infinite;
+        }
+
+        @keyframes robotBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a0a00, #4a1a0a);
+            padding: 40px;
+            border-radius: 20px;
+            border: 4px solid #ff6600;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 0 50px rgba(255, 100, 0, 0.8);
+        }
+
+        .modal-title {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(255, 0, 0, 0.8);
+        }
+
+        .modal-text {
+            font-size: 20px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .button {
+            background: #ff6600;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-family: 'Courier New', monospace;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .button:hover {
+            background: #ff8800;
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .checkpoint-info {
+            font-size: 11px;
+            color: #ffaa00;
+            margin-top: 0;
+            padding: 2px 6px;
+            background: rgba(255, 170, 0, 0.2);
+            border-radius: 3px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Pantalla de introducción -->
+    <div class="intro-screen" id="introScreen">
+        <div class="intro-content">
+            <h1 class="intro-title">🤖 ROBOT MINERO 🤖</h1>
+            <div class="intro-story">
+                <p><strong>EL AÑO 2157...</strong></p>
+                <p>La humanidad está al borde de una revolución tecnológica sin precedentes. 
+                Los científicos han descubierto un mineral extremadamente raro en las profundidades 
+                de las Cuevas de Lava del planeta Vulcanus-7.</p>
+                <p>Este mineral es la <strong style="color: #00ffff;">ÚNICA SUSTANCIA</strong> capaz de crear 
+                el <strong style="color: #ff00ff;">SUPER MICROPROCESADOR CUÁNTICO</strong>, 
+                una computadora tan poderosa que podría resolver todos los problemas de la humanidad: 
+                cura de enfermedades, viajes interestelares, energía infinita...</p>
+                <p style="color: #ff6600; font-weight: bold;">¡Pero hay un problema!</p>
+                <p>Las cuevas están llenas de lava mortal y son inestables. 
+                Solo un robot especializado puede entrar, pero sufrió una caída aparatosa 
+                y sus controles están dañados: <strong style="color: #ff0000;">A veces se invierten sin previo aviso.</strong></p>
+            </div>
+            <div class="intro-mission">
+                🎯 MISIÓN: Recolectar los 21 MINERALES para crear el Super Microprocesador
+            </div>
+            <div class="intro-instructions">
+                <h3>📋 CÓMO JUGAR</h3>
+                <ul>
+                    <li>⌨️ Usa las FLECHAS o WASD para mover el robot</li>
+                    <li>🟢 VERDE = Controles normales</li>
+                    <li>🔴 ROJO = ¡Controles INVERTIDOS!</li>
+                    <li>⏱️ Completa cada nivel antes que se acabe el tiempo</li>
+                    <li>🟫 El piso SE CAE después de pisarlo (no puedes retroceder)</li>
+                    <li>🔥 No caigas en la LAVA</li>
+                    <li>💎 Recolecta el mineral y llega a la salida 🚪</li>
+                    <li>⚠️ Sistema de CHECKPOINTS cada 5 niveles</li>
+                </ul>
+            </div>
+            <button class="start-button" onclick="initAndStartGame()">INICIAR MISIÓN ▶</button>
+        </div>
+    </div>
+
+    <!-- Juego principal -->
+    <div class="game-container hidden" id="gameContainer">
+        <!-- Panel izquierdo con semáforo -->
+        <div class="left-panel">
+            <div class="control-status-text normal" id="controlStatusText">
+                CONTROLES NORMALES
+            </div>
+            <div class="control-indicator-vertical">
+                <div class="battery-fill-vertical green" id="batteryFillVertical"></div>
+            </div>
+        </div>
+
+        <!-- Panel central -->
+        <div class="center-panel">
+            <div class="game-header">
+                <div class="game-info-line">
+                    <div class="stat">🏆 <span id="level">1</span>/21</div>
+                    <div class="stat">💎 <span id="totalMinerals">0</span>/21</div>
+                    <div class="timer" id="timer">30</div>
+                    <div class="checkpoint-info" id="checkpointInfo">CP: 1</div>
+                </div>
+            </div>
+
+            <div class="game-board">
+                <div class="grid" id="gameGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Game Over -->
+    <div class="modal-overlay hidden" id="gameOver">
+        <div class="modal-content">
+            <h2 class="modal-title">💥 GAME OVER 💥</h2>
+            <p class="modal-text" id="gameOverText">¡El robot cayó en la lava!</p>
+            <button class="button" onclick="restartFromCheckpoint()">Reintentar Nivel</button>
+        </div>
+    </div>
+
+    <!-- Modal Level Complete -->
+    <div class="modal-overlay hidden" id="levelComplete">
+        <div class="modal-content">
+            <h2 class="modal-title">✨ ¡NIVEL COMPLETADO! ✨</h2>
+            <p class="modal-text" id="completeText">¡Mineral recolectado!</p>
+            <button class="button" onclick="nextLevel()">Siguiente Nivel ▶</button>
+        </div>
+    </div>
+
+    <!-- Modal Victoria Final -->
+    <div class="modal-overlay hidden" id="finalVictory">
+        <div class="modal-content">
+            <h2 class="modal-title" style="color: #00ff00;">🎉 ¡MISIÓN CUMPLIDA! 🎉</h2>
+            <p class="modal-text">
+                ¡FELICIDADES! Has recolectado los 21 minerales.<br><br>
+                El <strong style="color: #ff00ff;">SUPER MICROPROCESADOR CUÁNTICO</strong> 
+                ha sido creado exitosamente.<br><br>
+                <strong style="color: #00ffff;">¡HAS SALVADO A LA HUMANIDAD!</strong> 🌍✨
+            </p>
+            <button class="button" onclick="location.reload()">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <script>
+        const GRID_WIDTH = 15;
+        const GRID_HEIGHT = 14;
+        const CELL_TYPES = {
+            LAVA: 0,
+            PATH: 1,
+            MINERAL: 2,
+            EXIT: 3
+        };
+
+        // ============================================
+        // 🎵 LÍNEAS PARA AGREGAR TUS ARCHIVOS DE AUDIO
+        // ============================================
+        
+        const backgroundMusic = new Audio(); 
+        backgroundMusic.src = 'tu-musica-fondo.mp3';
+        backgroundMusic.loop = true;
+        backgroundMusic.volume = 0.3;
+        
+        const deathSound = new Audio(); 
+        deathSound.src = 'tu-sonido-muerte.mp3';
+        deathSound.volume = 0.5;
+        
+        const mineralSound = new Audio(); 
+        mineralSound.src = 'tu-sonido-mineral.mp3';
+        mineralSound.volume = 0.5;
+        
+        function playBackgroundMusic() {
+        backgroundMusic.play().catch(e => console.log('Audio'));
+        }
+        
+        function stopBackgroundMusic() {
+        backgroundMusic.pause();
+        backgroundMusic.currentTime = 0;
+        }
+        
+        function playDeathSound() {
+        deathSound.currentTime = 0;
+        deathSound.play().catch(e => console.log('Audio'));
+        }
+        
+        function playMineralSound() {
+        mineralSound.currentTime = 0;
+        mineralSound.play().catch(e => console.log('Audio'));
+        }
+        
+        // ============================================
+
+        let currentLevel = 0;
+        let robotPos = { x: 0, y: 0 };
+        let grid = [];
+        let fallenCells = new Set();
+        let totalMineralsCollected = 0;
+        let levelMineralCollected = false;
+        let controlsInverted = false;
+        let controlTimer = 0;
+        let maxControlTime = 5000;
+        let gameActive = false;
+        let timeLeft = 30;
+        let timerInterval = null;
+        let currentCheckpoint = 0;
+        let LEVELS = null;
+
+        const LEVEL_TIMES = [
+            30, 30, 28, 28,
+            25, 22, 20, 20, 18,
+            18, 16, 15, 15, 14,
+            12, 10, 10, 8, 8,
+            6, 6
+        ];
+
+        function initAndStartGame() {
+            // Generar todos los niveles con 14 filas - SIN DIAGONALES
+            LEVELS = [
+                // Nivel 1 - Línea recta
+                { 
+                    start: { x: 7, y: 0 }, 
+                    exit: { x: 7, y: 13 }, 
+                    paths: (() => {
+                        const p = [];
+                        for (let y = 0; y < GRID_HEIGHT; y++) p.push({ x: 7, y });
+                        return p;
+                    })()
+                },
+                // Nivel 2 - S simple
+                {
+                    start: { x: 1, y: 0 },
+                    exit: { x: 13, y: 13 },
+                    paths: (() => {
+                        const p = [];
+                        for (let y = 0; y <= 4; y++) p.push({ x: 1, y });
+                        for (let x = 1; x <= 13; x++) p.push({ x, y: 4 });
+                        for (let y = 4; y <= 9; y++) p.push({ x: 13, y });
+                        for (let x = 13; x >= 1; x--) p.push({ x, y: 9 });
+                        for (let y = 9; y < GRID_HEIGHT; y++) p.push({ x: 1, y });
+                        for (let x = 1; x <= 13; x++) p.push({ x, y: 13 });
+                        return p;
+                    })()
+                },
+                // Nivel 3 - Zigzag
+                {
+                    start: { x: 7, y: 0 },
+                    exit: { x: 7, y: 13 },
+                    paths: (() => {
+                        const p = [];
+                        for (let y = 0; y < GRID_HEIGHT; y++) {
+                            const offset = Math.floor(y / 2) % 2 === 0 ? 0 : 5;
+                            for (let x = 2 + offset; x <= 9 + offset && x < GRID_WIDTH; x++) {
+                                p.push({ x, y });
+                            }
+                        }
+                        return p;
+                    })()
+                },
+                // Nivel 4 - Espiral
+                {
+                    start: { x: 1, y: 0 },
+                    exit: { x: 13, y: 13 },
+                    paths: (() => {
+                        const p = [];
+                        for (let y = 0; y <= 6; y++) p.push({ x: 1, y });
+                        for (let x = 1; x <= 13; x++) p.push({ x, y: 6 });
+                        for (let y = 6; y <= 11; y++) p.push({ x: 13, y });
+                        for (let x = 13; x >= 5; x--) p.push({ x, y: 11 });
+                        for (let y = 11; y < GRID_HEIGHT; y++) p.push({ x: 5, y });
+                        for (let x = 5; x <= 13; x++) p.push({ x, y: 13 });
+                        return p;
+                    })()
+                },
+                // Nivel 5 - Serpiente
+                {
+                    start: { x: 13, y: 0 },
+                    exit: { x: 1, y: 13 },
+                    paths: (() => {
+                        const p = [];
+                        for (let y = 0; y < GRID_HEIGHT - 1; y++) {
+                            if (y % 2 === 0) {
+                                for (let x = 13; x >= 7; x--) p.push({ x, y });
+                            } else {
+                                for (let x = 7; x <= 13; x++) p.push({ x, y });
+                            }
+                        }
+                        for (let x = 13; x >= 1; x--) p.push({ x, y: GRID_HEIGHT - 1 });
+                        return p;
+                    })()
+                },
+                // Niveles 6-21 - Variaciones complejas SIN DIAGONALES
+                ...Array.from({ length: 16 }, (_, i) => {
+                    const levelNum = i + 6;
+                    const startX = [7, 1, 13, 7, 1, 13, 7, 1, 13, 7, 1, 13, 7, 1, 13, 7][i];
+                    const endX = [7, 13, 1, 7, 13, 1, 7, 13, 1, 7, 13, 1, 7, 13, 7, 7][i];
+                    
+                    return {
+                        start: { x: startX, y: 0 },
+                        exit: { x: endX, y: 13 },
+                        paths: (() => {
+                            const p = [];
+                            if (levelNum % 3 === 0) {
+                                // Serpiente compleja
+                                for (let y = 0; y < GRID_HEIGHT - 1; y++) {
+                                    if (y % 2 === 0) {
+                                        const start = Math.min(startX, 13);
+                                        const end = Math.max(start - 6, 1);
+                                        for (let x = start; x >= end; x--) p.push({ x, y });
+                                    } else {
+                                        const end = Math.min(startX, 13);
+                                        const start = Math.max(end - 6, 1);
+                                        for (let x = start; x <= end; x++) p.push({ x, y });
+                                    }
+                                }
+                                for (let x = Math.max(startX, endX); x >= Math.min(startX, endX); x--) {
+                                    p.push({ x, y: GRID_HEIGHT - 1 });
+                                }
+                            } else {
+                                // ✅ ZIGZAG HORIZONTAL/VERTICAL (SIN DIAGONALES)
+                                let x = startX;
+                                const stepsPerRow = 2; // Cada 2 filas cambia de columna
+                                
+                                for (let y = 0; y < GRID_HEIGHT; y++) {
+                                    p.push({ x, y });
+                                    
+                                    // Cambiar X cada stepsPerRow filas
+                                    if (y % stepsPerRow === stepsPerRow - 1 && y < GRID_HEIGHT - 1) {
+                                        if (Math.abs(x - endX) > 0) {
+                                            const targetX = x + ((endX > x) ? 1 : -1);
+                                            // Movimiento horizontal en la misma fila
+                                            p.push({ x: targetX, y });
+                                            x = targetX;
+                                        }
+                                    }
+                                }
+                                
+                                // Completar camino horizontal al final si es necesario
+                                while (x !== endX) {
+                                    x += (endX > x) ? 1 : -1;
+                                    p.push({ x, y: GRID_HEIGHT - 1 });
+                                }
+                            }
+                            return p;
+                        })()
+                    };
+                })
+            ];
+            
+            startGame();
+        }
+
+        function startGame() {
+            document.getElementById('introScreen').classList.add('hidden');
+            document.getElementById('gameContainer').classList.remove('hidden');
+            playBackgroundMusic();
+            loadLevel();
+        }
+
+        function loadLevel() {
+            const level = LEVELS[currentLevel];
+            robotPos = { ...level.start };
+            fallenCells = new Set();
+            levelMineralCollected = false;
+            controlsInverted = false;
+            controlTimer = 0;
+            gameActive = true;
+            timeLeft = LEVEL_TIMES[currentLevel];
+
+            if (currentLevel >= 20) currentCheckpoint = 20;
+            else if (currentLevel >= 15) currentCheckpoint = 15;
+            else if (currentLevel >= 10) currentCheckpoint = 10;
+            else if (currentLevel >= 5) currentCheckpoint = 5;
+            else currentCheckpoint = 0;
+
+            grid = Array(GRID_HEIGHT).fill(null).map(() => Array(GRID_WIDTH).fill(CELL_TYPES.LAVA));
+
+            level.paths.forEach(pos => {
+                if (pos.x >= 0 && pos.x < GRID_WIDTH && pos.y >= 0 && pos.y < GRID_HEIGHT) {
+                    grid[pos.y][pos.x] = CELL_TYPES.PATH;
+                }
+            });
+
+            const midPoint = Math.floor(level.paths.length / 2);
+            const mineralPos = level.paths[midPoint];
+            grid[mineralPos.y][mineralPos.x] = CELL_TYPES.MINERAL;
+
+            grid[level.exit.y][level.exit.x] = CELL_TYPES.EXIT;
+
+            document.getElementById('level').textContent = currentLevel + 1;
+            document.getElementById('totalMinerals').textContent = totalMineralsCollected;
+            document.getElementById('timer').textContent = timeLeft;
+            document.getElementById('timer').className = 'timer';
+            document.getElementById('checkpointInfo').textContent = 
+                currentCheckpoint === 0 ? 'CP: 1' : `CP: ${currentCheckpoint + 1}`;
+            document.getElementById('gameOver').classList.add('hidden');
+            document.getElementById('levelComplete').classList.add('hidden');
+
+            renderGrid();
+            updateControlIndicator();
+            startTimer();
+        }
+
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            
+            timerInterval = setInterval(() => {
+                if (!gameActive) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                const timerElement = document.getElementById('timer');
+                if (timeLeft <= 3) {
+                    timerElement.className = 'timer critical';
+                } else if (timeLeft <= 5) {
+                    timerElement.className = 'timer warning';
+                } else {
+                    timerElement.className = 'timer';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    collapseAllPaths();
+                }
+            }, 1000);
+        }
+
+        function collapseAllPaths() {
+            gameActive = false;
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                for (let x = 0; x < GRID_WIDTH; x++) {
+                    if (grid[y][x] !== CELL_TYPES.LAVA) {
+                        fallenCells.add(`${x},${y}`);
+                    }
+                }
+            }
+            renderGrid();
+            setTimeout(() => {
+                playDeathSound();
+                document.getElementById('gameOverText').textContent = '⏱️ ¡SE ACABÓ EL TIEMPO! El camino colapsó.';
+                document.getElementById('gameOver').classList.remove('hidden');
+            }, 500);
+        }
+
+        function renderGrid() {
+            const gridElement = document.getElementById('gameGrid');
+            gridElement.innerHTML = '';
+            gridElement.style.gridTemplateColumns = `repeat(${GRID_WIDTH}, 28px)`;
+
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                for (let x = 0; x < GRID_WIDTH; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+
+                    const cellKey = `${x},${y}`;
+                    if (fallenCells.has(cellKey)) {
+                        cell.classList.add('fallen');
+                    } else if (grid[y][x] === CELL_TYPES.LAVA) {
+                        cell.classList.add('lava');
+                    } else if (grid[y][x] === CELL_TYPES.PATH) {
+                        cell.classList.add('path');
+                    } else if (grid[y][x] === CELL_TYPES.MINERAL) {
+                        cell.classList.add('mineral');
+                    } else if (grid[y][x] === CELL_TYPES.EXIT) {
+                        cell.classList.add('exit');
+                    }
+
+                    if (x === robotPos.x && y === robotPos.y && gameActive) {
+                        const robot = document.createElement('div');
+                        robot.className = 'robot';
+                        robot.textContent = '🤖';
+                        cell.appendChild(robot);
+                    }
+
+                    gridElement.appendChild(cell);
+                }
+            }
+        }
+
+        function moveRobot(dx, dy) {
+            if (!gameActive) return;
+
+            if (controlsInverted) {
+                dx = -dx;
+                dy = -dy;
+            }
+
+            const newX = robotPos.x + dx;
+            const newY = robotPos.y + dy;
+
+            if (newX < 0 || newX >= GRID_WIDTH || newY < 0 || newY >= GRID_HEIGHT) return;
+
+            const cellKey = `${newX},${newY}`;
+            if (fallenCells.has(cellKey) || grid[newY][newX] === CELL_TYPES.LAVA) {
+                gameOver();
+                return;
+            }
+
+            const currentKey = `${robotPos.x},${robotPos.y}`;
+            fallenCells.add(currentKey);
+
+            robotPos.x = newX;
+            robotPos.y = newY;
+
+            if (grid[newY][newX] === CELL_TYPES.MINERAL && !levelMineralCollected) {
+                levelMineralCollected = true;
+                grid[newY][newX] = CELL_TYPES.PATH;
+                playMineralSound();
+            }
+
+            if (grid[newY][newX] === CELL_TYPES.EXIT && levelMineralCollected) {
+                levelComplete();
+                return;
+            }
+
+            renderGrid();
+        }
+
+        function updateControlIndicator() {
+            controlTimer += 50;
+
+            if (controlTimer >= maxControlTime * 2) {
+                controlTimer = 0;
+            }
+
+            const isInGreenPhase = controlTimer < maxControlTime;
+            controlsInverted = !isInGreenPhase;
+
+            const batteryFill = document.getElementById('batteryFillVertical');
+            const controlText = document.getElementById('controlStatusText');
+
+            if (isInGreenPhase) {
+                const percentage = ((maxControlTime - controlTimer) / maxControlTime) * 100;
+                batteryFill.style.height = percentage + '%';
+                batteryFill.className = 'battery-fill-vertical green';
+                controlText.textContent = 'CONTROLES NORMALES';
+                controlText.className = 'control-status-text normal';
+            } else {
+                const percentage = ((maxControlTime * 2 - controlTimer) / maxControlTime) * 100;
+                batteryFill.style.height = percentage + '%';
+                batteryFill.className = 'battery-fill-vertical red';
+                controlText.textContent = '⚠️ INVERTIDOS ⚠️';
+                controlText.className = 'control-status-text inverted';
+            }
+        }
+
+        function gameOver() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            playDeathSound();
+            document.getElementById('gameOverText').textContent = '🔥 ¡El robot cayó en la lava!';
+            document.getElementById('gameOver').classList.remove('hidden');
+        }
+
+        function levelComplete() {
+            gameActive = false;
+            clearInterval(timerInterval);
+            
+            if (levelMineralCollected) {
+                totalMineralsCollected++;
+                document.getElementById('totalMinerals').textContent = totalMineralsCollected;
+            }
+            
+            if (currentLevel === 20) {
+                document.getElementById('finalVictory').classList.remove('hidden');
+            } else {
+                document.getElementById('completeText').textContent = 
+                    `¡Mineral ${totalMineralsCollected}/21 recolectado! Nivel ${currentLevel + 1} completado.`;
+                document.getElementById('levelComplete').classList.remove('hidden');
+            }
+        }
+
+        function restartFromCheckpoint() {
+            loadLevel();
+        }
+
+        function nextLevel() {
+            currentLevel++;
+            loadLevel();
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (!gameActive) return;
+
+            switch(e.key) {
+                case 'ArrowUp':
+                case 'w':
+                case 'W':
+                    e.preventDefault();
+                    moveRobot(0, -1);
+                    break;
+                case 'ArrowDown':
+                case 's':
+                case 'S':
+                    e.preventDefault();
+                    moveRobot(0, 1);
+                    break;
+                case 'ArrowLeft':
+                case 'a':
+                case 'A':
+                    e.preventDefault();
+                    moveRobot(-1, 0);
+                    break;
+                case 'ArrowRight':
+                case 'd':
+                case 'D':
+                    e.preventDefault();
+                    moveRobot(1, 0);
+                    break;
+            }
+        });
+
+        setInterval(updateControlIndicator, 50);
+    </script>
+</body>
+</html>
