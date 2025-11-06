@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@layer utilities {
+  .text-shadow-game {
+    text-shadow: 4px 4px 0px rgba(0,0,0,0.3), 8px 8px 0px rgba(0,0,0,0.2);
+  }
+}
+
+/* Pulsación lenta y sutil */
+@keyframes pulse-subtle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 0.95;
+  }
+}
+
+/* Brillo sutil 
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.6));
+  }
+}
+  */
+
+/* Combinación de ambos efectos  */
+.animate-pulse-glow {
+  animation: pulse-subtle 4s ease-in-out infinite, glow 2s ease-in-out infinite;
+}
+ 
