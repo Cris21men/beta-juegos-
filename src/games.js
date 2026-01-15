@@ -20,10 +20,11 @@ export const games = [
   {
     id: 3,
     name: "Próximamente",
-    description: "Nuevo juego en desarrollo",
+    description: "Darwin",
     available: false,
     path: null,
     color: "from-gray-600 to-gray-800",
     image: null  // Sin imagen para juegos bloqueados
   }
+
 ];
