@@ -26,7 +26,9 @@ export default function GameModal({ game, onClose }) {
                 src={game.path}
                 className="w-full h-full border-0 rounded-lg"
                 title={game.name}
-                allow="autoplay; fullscreen"
+                allow="autoplay; fullscreen; cross-origin-isolated"
+                sandbox="allow-scripts allow-same-origin allow-forms"
+                crossOrigin="anonymous"
               />
             </div>
           ) : (
