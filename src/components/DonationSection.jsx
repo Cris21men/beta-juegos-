@@ -16,7 +16,7 @@ export default function DonationSection() {
     },
     {
       name: "Yape/Plin",
-      number: "966 518 727",  // Tu número actual
+      number: "953 791 015",  // Tu número actual
       icon: "📱",
       color: "from-purple-500 to-pink-500"
     }
