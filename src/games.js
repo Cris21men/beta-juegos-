@@ -10,7 +10,7 @@ export const games = [
   },
   {
     id: 2,
-    name: "Robot minero",
+    name: "Darwin",
     description: "Año 2157. Controla un robot dañado en las peligrosas Cuevas de Lava de Vulcanus-7. Recolecta 21 minerales para salvar a la humanidad.",
     available: true,
     path: "/games/game2/index.html",
@@ -28,4 +28,5 @@ export const games = [
   }
 
 ];
+
 
