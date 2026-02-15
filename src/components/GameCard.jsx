@@ -18,28 +18,27 @@ export default function GameCard({ game, onClick, isDragging, isUnlocking }) {
         </div>
       )}
 
-      <div className={`relative bg-gradient-to-br ${game.color} rounded-2xl p-6 h-80 overflow-hidden shadow-2xl transform transition-all duration-300 ${
+      <div className={`relative bg-gradient-to-br ${game.color} rounded-2xl p-6 h-96 overflow-hidden shadow-2xl transform transition-all duration-300 ${
         game.available ? 'hover:scale-105 hover:shadow-yellow-500/50' : ''
       }`}>
         {/* Contenido del juego */}
         <div className="relative z-10 h-full flex flex-col">
-          <div className="flex-1 flex items-center justify-center">
+          <div className="flex-1 flex items-center justify-center overflow-hidden">
             {!game.available ? (
               <div className="text-center">
                 <Lock className="w-20 h-20 mx-auto mb-4 text-gray-400" />
                 <div className="text-4xl mb-2">🔒</div>
               </div>
             ) : game.image ? (
-              // Mostrar imagen de portada si existe
-              <div className="w-full h-full flex items-center justify-center">
+              /* CAMBIO AQUÍ: Contenedor con tamaño fijo y object-cover */
+              <div className="w-full h-48 flex items-center justify-center overflow-hidden rounded-lg shadow-lg bg-black/20">
                 <img 
                   src={game.image} 
                   alt={game.name}
-                  className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
             ) : (
-              // Mostrar ícono de gamepad si no hay imagen
               <div className="text-center">
                 <Gamepad2 className="w-24 h-24 mx-auto mb-4 text-white animate-pulse" />
               </div>
@@ -47,8 +46,8 @@ export default function GameCard({ game, onClick, isDragging, isUnlocking }) {
           </div>
           
           <div className="text-center text-white mt-4">
-            <h3 className="text-2xl font-bold mb-2">{game.name}</h3>
-            <p className="text-sm opacity-90">{game.description}</p>
+            <h3 className="text-2xl font-bold mb-1 truncate">{game.name}</h3>
+            <p className="text-sm opacity-90 line-clamp-2">{game.description}</p>
           </div>
         </div>
 
